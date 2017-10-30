@@ -1,5 +1,9 @@
 from django.shortcuts import render
 
+from django import forms
+
+from django.views.generic.edit import CreateView
+
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -14,6 +18,7 @@ from rest_framework.permissions import IsAuthenticated
 from . import serializers
 from . import models
 from . import permissions
+from . import forms
 
 # Create your views here.
 
@@ -147,3 +152,39 @@ class UserProfileFeedViewSet(viewsets.ModelViewSet):
         """Sets the user profile to the logged in user"""
 
         serializer.save(user_profile = self.request.user)
+
+
+class UserPostViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading, and updating posts submitted."""
+
+    authentication_classes = (TokenAuthentication, )
+    serializer_class = serializers.PostItemSerializer
+    queryset = models.PostItem.objects.all()
+    permission_classes = (permissions.PostOwnStatus, IsAuthenticated)
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged in user"""
+
+        serializer.save(user_profile = self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        """Gets the request to post"""
+
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """Posts the post item"""
+        return self.create(request, *args, **kwargs)
+
+    class SignUp(CreateView):
+        """Signs up for the event"""
+        model = models.Candidate
+        form_class = forms.signUpForm
+        template_name = 'signup_sheet.html'
+
+        def form_valid(self, form):
+            """Checks to see that it is valid"""
+            candidate = form.save(commit=False)
+            candidate.user = UserProfile.objects.get(user=self.request.user)
+            candidate.save()
+            return HttpResponseRedirect(self.get_success_url())

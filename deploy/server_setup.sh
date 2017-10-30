@@ -17,7 +17,6 @@ apt-get install -y python3-dev sqlite python-pip supervisor nginx git
 pip install --upgrade pip
 pip install virtualenv
 
-rm -rf $PROJECT_BASE_PATH
 
 mkdir -p $PROJECT_BASE_PATH
 git clone $PROJECT_GIT_URL $PROJECT_BASE_PATH/profiles-rest-api

@@ -10,6 +10,7 @@ router.register('hello-viewset' , views.HelloViewSet, base_name = 'hello-viewset
 router.register('profile' , views.UserProfileViewSet)
 router.register('login' , views.loginViewSet, base_name = 'login')
 router.register('feed' , views.UserProfileFeedViewSet)
+router.register('post' , views.UserPostViewSet)
 
 
 urlpatterns = [

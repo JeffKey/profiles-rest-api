@@ -1,7 +1,13 @@
 from django.db import models
+
+from django.urls import reverse
+
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
+from django.contrib.auth.models import User
+
+from django.template.defaultfilters import slugify
 
 # Create your models here.
 
@@ -75,3 +81,41 @@ class ProfileFeedItem(models.Model):
         """Return the model as a string."""
 
         return self.status_text
+
+class PostItem(models.Model):
+    """Posts service hours opportunities"""
+
+    title = models.CharField(max_length = 100)
+    slug = models.SlugField(max_length=160,blank=True,editable=False)
+    text = models.TextField()
+    created_on = models.DateTimeField(auto_now_add = True)
+    user_profile = models.ForeignKey('UserProfile', on_delete = models.CASCADE)
+
+    def __unicode__(self):
+        """Simplifies display of description of the object"""
+        return self.title
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('post_detail', (),
+                {
+                    'slug' :self.slug,
+                })
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super(PostItem, self).save(*args, **kwargs)
+
+class Candidate(models.Model):
+    user = models.CharField(max_length = 255)
+    email = models.EmailField(max_length = 255, unique=True)
+
+    def __unicode__(self):
+        """returns as a string"""
+
+        return unicode(self.user)
+
+    def get_absolute_url(self):
+        """gets the url"""
+        return reverse('user_detail' , kwargs = {'pk' : str(self.id) })
